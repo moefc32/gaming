@@ -1,0 +1,43 @@
+---
+import '../styles/global.css';
+
+const { pageTitle } = Astro.props;
+
+const siteTitle = `${import.meta.env.PUBLIC_APP_NAME}'s Website`;
+const siteDescription = '';
+const openGraph = {
+    title: import.meta.env.PUBLIC_APP_NAME,
+    siteName: '',
+    description: '',
+};
+---
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/png" href="/og.png" />
+
+        <title>
+            {pageTitle ? `${pageTitle} | ${siteTitle}` : siteTitle}
+        </title>
+        <meta name="description" content={siteDescription} />
+        <meta name="generator" content={Astro.generator} />
+
+        <meta property="og:title" content={openGraph.title} />
+        <meta property="og:site_name" content={openGraph.siteName} />
+        <meta property="og:description" content={openGraph.description} />
+        <meta property="og:image" content="/og.png" />
+        <meta property="og:type" content="website" />
+    </head>
+
+    <body
+        class="flex flex-col bg-slate-200 w-full min-h-screen overflow-auto"
+        data-theme="light"
+    >
+        <div style="display: contents">
+            <slot />
+        </div>
+    </body>
+</html>
