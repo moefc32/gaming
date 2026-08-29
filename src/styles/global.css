@@ -19,6 +19,14 @@ body {
     font-family: 'Red Hat Display Variable', sans-serif;
 }
 
+a {
+    color: var(--color-sky-700);
+}
+
+a:hover {
+    color: var(--color-orange-500);
+}
+
 input::-ms-reveal,
 input::-ms-clear,
 input[type="search"]::-webkit-search-decoration,
@@ -33,4 +41,81 @@ input[type="search"]::-webkit-search-cancel-button {
 .important::after {
     content: '*';
     color: var(--color-red-500);
+}
+
+@utility special-mask {
+    /* Cutout dimensions and desired inner/outer corner radius */
+    --w: 192px;
+    --h: 36px;
+    --r: 16px;
+
+    /* 
+    Additive masking strategy :
+    1-4: Solid rectangles covering the body up to the curves.
+    5-6: Radial gradients creating the outer convex curves on the right and bottom edges.
+    7: Radial gradient creating the inner concave curve at the vertex.
+    */
+    mask-image:
+        linear-gradient(#000, #000), linear-gradient(#000, #000),
+        linear-gradient(#000, #000), linear-gradient(#000, #000),
+        radial-gradient(circle at center,
+            #000 calc(var(--r) - 0.5px),
+            transparent var(--r)),
+        radial-gradient(circle at center,
+            #000 calc(var(--r) - 0.5px),
+            transparent var(--r)),
+        radial-gradient(circle at 100% 100%,
+            transparent calc(var(--r) - 0.5px),
+            #000 var(--r));
+
+    mask-size:
+        100% calc(100% - var(--h) - var(--r)),
+        calc(100% - var(--w) - var(--r)) 100%,
+        calc(100% - var(--r)) calc(100% - var(--h)),
+        calc(100% - var(--w)) calc(100% - var(--r)),
+        calc(var(--r) * 2) calc(var(--r) * 2),
+        calc(var(--r) * 2) calc(var(--r) * 2),
+        var(--r) var(--r);
+
+    mask-position:
+        0 0,
+        0 0,
+        0 0,
+        0 0,
+        right 0px bottom var(--h),
+        right var(--w) bottom 0px,
+        right calc(var(--w) - var(--r)) bottom calc(var(--h) - var(--r));
+
+    mask-repeat: no-repeat;
+
+    /* WebKit prefixes for Safari/Chrome compatibility */
+    -webkit-mask-image:
+        linear-gradient(#000, #000), linear-gradient(#000, #000),
+        linear-gradient(#000, #000), linear-gradient(#000, #000),
+        radial-gradient(circle at center,
+            #000 calc(var(--r) - 0.5px),
+            transparent var(--r)),
+        radial-gradient(circle at center,
+            #000 calc(var(--r) - 0.5px),
+            transparent var(--r)),
+        radial-gradient(circle at 100% 100%,
+            transparent calc(var(--r) - 0.5px),
+            #000 var(--r));
+    -webkit-mask-size:
+        100% calc(100% - var(--h) - var(--r)),
+        calc(100% - var(--w) - var(--r)) 100%,
+        calc(100% - var(--r)) calc(100% - var(--h)),
+        calc(100% - var(--w)) calc(100% - var(--r)),
+        calc(var(--r) * 2) calc(var(--r) * 2),
+        calc(var(--r) * 2) calc(var(--r) * 2),
+        var(--r) var(--r);
+    -webkit-mask-position:
+        0 0,
+        0 0,
+        0 0,
+        0 0,
+        right 0px bottom var(--h),
+        right var(--w) bottom 0px,
+        right calc(var(--w) - var(--r)) bottom calc(var(--h) - var(--r));
+    -webkit-mask-repeat: no-repeat;
 }

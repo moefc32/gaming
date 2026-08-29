@@ -27,27 +27,49 @@
     });
 </script>
 
-<div class="flex gap-2 absolute left-0 bottom-0">
-    {#each platform as item, i}
-        <a
-            href={item.url}
-            target="_blank"
-            class="tooltip inline-block p-2.5 bg-slate-400/85 hover:bg-slate-500 transition rounded-lg"
-            data-tip={item.name}
-        >
-            <span
-                class="block bg-cover bg-center bg-no-repeat w-10 invert aspect-square"
-                style={`background-image: url(icon/${item.class}.svg);`}
-            ></span>
-        </a>
-    {/each}
-</div>
+<section>
+    <div
+        class="flex justify-center lg:justify-end gap-1.5 lg:absolute right-4 top-4 z-100"
+    >
+        {#each platform as item, i}
+            <a
+                href={item.url}
+                target="_blank"
+                class="tooltip lg:tooltip-bottom lg:tooltip-end inline-block p-2 bg-slate-400/85 hover:bg-sky-800 border-2 border-slate-400/85 hover:border-black/20 transition rounded-2xl"
+                data-tip={item.name}
+            >
+                <span
+                    class="block bg-cover bg-center bg-no-repeat w-8 invert aspect-square"
+                    style={`background-image: url(icon/${item.class}.svg);`}
+                ></span>
+            </a>
+        {/each}
+    </div>
 
-<Toaster
-    richColors
-    theme="light"
-    position="bottom-center"
-    toastOptions={{
-        style: 'font-size: 1rem;',
-    }}
-/>
+    <div
+        class="hidden lg:flex gap-3 me-56 mb-4 pb-2 w-[calc(100vw-872px)] h-38 absolute right-0 bottom-0 overflow-x-auto rounded-lg"
+    >
+        {#each youtube as item, i}
+            <a
+                href={item.url}
+                target="_blank"
+                class="bg-gray-500 bg-cover bg-center bg-no-repeat h-full border-1 border-gray-600 aspect-video rounded-lg relative"
+                style={`background-image: url(${item.image});`}
+                title={item.title}
+            >
+                <span
+                    class="bg-[url(icon/youtube.svg)] bg-cover bg-center bg-no-repeat w-[12.5%] aspect-square invert opacity-75 absolute left-2.5 bottom-2"
+                ></span>
+            </a>
+        {/each}
+    </div>
+
+    <Toaster
+        richColors
+        theme="light"
+        position="bottom-center"
+        toastOptions={{
+            style: 'font-size: 1rem;',
+        }}
+    />
+</section>

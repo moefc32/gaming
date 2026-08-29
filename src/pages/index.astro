@@ -7,23 +7,38 @@ import Footer from '../components/Footer.astro';
 ---
 
 <Layout>
-    <main class="flex flex-1 flex-col gap-9 mx-18 my-12 relative">
-        <div class="flex flex-col gap-2 pt-6 max-w-[530px]">
-            <h1 class="text-6xl text-slate-800 font-bold uppercase tracking-wide">
+    <main class="flex flex-1 flex-col gap-9 m-12 relative">
+        <div
+            id="chara-container"
+            class:list={[
+                'lg:special-mask w-full h-64 lg:w-[calc(100vw-624px)] lg:h-[calc(100dvh-96px)]',
+                'bg-sky-700 rounded-2xl lg:absolute right-0 top-0',
+            ]}
+        >
+        </div>
+        <div
+            class="flex flex-1 flex-col gap-2 lg:pt-6 lg:max-w-[480px] lg:absolute left-0 bottom-0"
+        >
+            <h1
+                class="text-5xl text-center lg:text-left text-slate-800 font-bold uppercase tracking-wide"
+            >
                 {owner.displayName}
             </h1>
-            <h2 class="text-2xl text-slate-400 tracking-widest">
+            <h2
+                class="text-2xl text-center lg:text-left text-sky-700 tracking-[.5em]"
+            >
                 {owner.kanaName}
             </h2>
-            <article class="flex flex-col gap-3 pt-4">
-                <p class="mb-3 text-xl text-slate-600 italic">
+            <article class="flex flex-col gap-3 mt-4">
+                <p class="mb-3 text-lg text-slate-600 italic">
                     noun &mdash; personal term
                 </p>
                 {
                     owner.intro.map(item => (
-                        <p class="text-lg text-slate-600 text-justify leading-8">
-                            {item}
-                        </p>
+                        <p
+                            class="text-slate-600 text-justify leading-8"
+                            set:html={item}
+                        />
                     ))
                 }
             </article>
