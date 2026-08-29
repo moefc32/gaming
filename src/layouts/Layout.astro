@@ -1,13 +1,14 @@
 ---
 import '../styles/global.css';
+import { owner } from '../lib/config';
 
 const { pageTitle } = Astro.props;
 
-const siteTitle = `${import.meta.env.PUBLIC_APP_NAME}'s Website`;
+const siteTitle = `${owner.displayName}'s Website`;
 const siteDescription = '';
 const openGraph = {
-    title: import.meta.env.PUBLIC_APP_NAME,
-    siteName: '',
+    title: owner.displayName,
+    siteName: siteTitle,
     description: '',
 };
 ---

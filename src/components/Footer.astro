@@ -1,11 +1,14 @@
-<footer class="text-center md:text-right md:absolute right-0 bottom-0">
-    {import.meta.env.PUBLIC_APP_NAME} &copy;
-    <span data-footer-year></span>
+---
+import { owner } from '../lib/config';
+---
+
+<footer class="text-slate-600 text-center md:text-right md:absolute right-0 bottom-0">
+    <span data-copyright>{owner.displayName} &copy;</span>
     <span class="inline-block px-1">|</span>
     <a
         href="https://opensource.org/licenses/MIT"
         target="_blank"
-        class="text-blue-500 hover:text-orange-500 underline">MIT</a
+        class="text-blue-500 hover:text-orange-500 transition underline">MIT</a
     >
 </footer>
 
@@ -13,6 +16,5 @@
     const getYear = new Date().getFullYear();
     const currentYear = (getYear > 2026 ? `2026 - ` : '') + getYear;
 
-    const footerYear = document.querySelector('[data-footer-year]');
-    if (footerYear) footerYear.textContent = currentYear;
+    document.querySelector('[data-copyright]').append(` ${currentYear}`);
 </script>

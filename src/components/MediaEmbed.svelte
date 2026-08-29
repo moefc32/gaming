@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { Toaster, toast } from 'svelte-sonner';
     import ky from 'ky';
+    import { owner } from '../lib/config';
     import datePrettier from '../lib/datePrettier';
 
     let dataLoading = true;
@@ -15,7 +16,6 @@
                 .get(import.meta.env.PUBLIC_BACKEND)
                 .json();
 
-            console.log(data);
             platform = data.platform;
             behance = data.behance;
             youtube = data.youtube;
@@ -27,50 +27,21 @@
     });
 </script>
 
-<!-- <ul class="list-disc text-lg">
-    {#each behance as item, i}
-        <li>
-            <p
-                class="w-36 aspect-video bg-cover!"
-                style="background: url({item.image}) center center no-repeat;"
-            ></p>
-            <p>{item.title}</p>
-            <p>{item.date}</p>
-            <p>
-                <a href={item.url} target="_blank" class="text-blue-500">
-                    link
-                </a>
-            </p>
-        </li>
-    {/each}
-</ul> -->
-
-<ul class="list-disc text-lg">
+<div class="flex gap-2 absolute left-0 bottom-0">
     {#each platform as item, i}
-        <li>
-            {item.name}:
-            <a href={item.url} target="_blank" class="text-blue-500">link</a>
-        </li>
+        <a
+            href={item.url}
+            target="_blank"
+            class="tooltip inline-block p-2.5 bg-slate-400/85 hover:bg-slate-500 transition rounded-lg"
+            data-tip={item.name}
+        >
+            <span
+                class="block bg-cover bg-center bg-no-repeat w-10 invert aspect-square"
+                style={`background-image: url(icon/${item.class}.svg);`}
+            ></span>
+        </a>
     {/each}
-</ul>
-
-<!-- <ul class="list-disc text-lg">
-    {#each youtube as item, i}
-        <li>
-            <p
-                class="w-36 aspect-video bg-cover!"
-                style="background: url({item.image}) center center no-repeat;"
-            ></p>
-            <p>{item.title}</p>
-            <p>{item.date}</p>
-            <p>
-                <a href={item.url} target="_blank" class="text-blue-500">
-                    link
-                </a>
-            </p>
-        </li>
-    {/each}
-</ul> -->
+</div>
 
 <Toaster
     richColors

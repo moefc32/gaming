@@ -1,4 +1,6 @@
 ---
+import { owner } from '../lib/config';
+
 import Layout from '../layouts/Layout.astro';
 import MediaEmbed from '../components/MediaEmbed.svelte';
 import Footer from '../components/Footer.astro';
@@ -6,17 +8,25 @@ import Footer from '../components/Footer.astro';
 
 <Layout>
     <main class="flex flex-1 flex-col gap-9 mx-18 my-12 relative">
-        <div class="flex flex-col gap-6 max-w-lg">
-            <h1 class="my-12 text-5xl uppercase">
-                {import.meta.env.PUBLIC_APP_NAME}
+        <div class="flex flex-col gap-2 pt-6 max-w-[530px]">
+            <h1 class="text-6xl text-slate-800 font-bold uppercase tracking-wide">
+                {owner.displayName}
             </h1>
-            <p class="text-lg leading-7">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam
-                euismod at diam eu luctus. Sed ut placerat justo. Nunc sagittis
-                congue malesuada. Etiam ante sapien, fermentum et dolor blandit,
-                egestas efficitur felis. Ut in augue ex. Phasellus auctor
-                suscipit ipsum. Fusce et odio scelerisque, varius velit.
-            </p>
+            <h2 class="text-2xl text-slate-400 tracking-widest">
+                {owner.kanaName}
+            </h2>
+            <article class="flex flex-col gap-3 pt-4">
+                <p class="mb-3 text-xl text-slate-600 italic">
+                    noun &mdash; personal term
+                </p>
+                {
+                    owner.intro.map(item => (
+                        <p class="text-lg text-slate-600 text-justify leading-8">
+                            {item}
+                        </p>
+                    ))
+                }
+            </article>
         </div>
         <MediaEmbed client:load />
         <Footer />

@@ -13,7 +13,6 @@ export default defineConfig({
         ],
         resolve: {
             noExternal: [
-                '@lucide/svelte',
                 'svelte-sonner',
             ],
         },
