@@ -7,7 +7,6 @@
 
     let dataLoading = true;
     let platform = [];
-    let behance = [];
     let youtube = [];
 
     onMount(async () => {
@@ -17,7 +16,6 @@
                 .json();
 
             platform = data.platform;
-            behance = data.behance;
             youtube = data.youtube;
             dataLoading = false;
         } catch (e) {

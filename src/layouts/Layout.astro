@@ -1,15 +1,30 @@
 ---
 import '../styles/global.css';
+import { imageSizeFromFile } from 'image-size/fromFile';
 import { owner } from '../lib/config';
 
 const { pageTitle } = Astro.props;
 
+const defaultFavicon = '/res/favicon.png';
+const imageDimensions = await imageSizeFromFile('./public' + defaultFavicon);
+
 const siteTitle = `${owner.displayName}'s Website`;
+const formattedTitle = pageTitle ? `${pageTitle} | ${siteTitle}` : siteTitle;
 const siteDescription = '';
+const siteUrl = import.meta.env.DEV
+    ? Astro.url.origin
+    : import.meta.env.PUBLIC_SITE_URL.replace(/\/+$/, '');
+
 const openGraph = {
-    title: owner.displayName,
     siteName: siteTitle,
-    description: '',
+    description:
+        'Welcome to my website! I may post about games, animanga, shitposts, and waifus too, so nice to meet you!',
+    image: {
+        url: defaultFavicon,
+        width: imageDimensions?.width,
+        height: imageDimensions?.height,
+    },
+    type: 'website',
 };
 ---
 
@@ -18,19 +33,26 @@ const openGraph = {
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" type="image/png" href="/res/favicon.png" />
+        <link rel="icon" type="image/png" href={defaultFavicon} />
 
-        <title>
-            {pageTitle ? `${pageTitle} | ${siteTitle}` : siteTitle}
-        </title>
+        <title>{formattedTitle}</title>
         <meta name="description" content={siteDescription} />
         <meta name="generator" content={Astro.generator} />
 
-        <meta property="og:title" content={openGraph.title} />
+        <meta property="og:title" content={formattedTitle} />
         <meta property="og:site_name" content={openGraph.siteName} />
         <meta property="og:description" content={openGraph.description} />
-        <meta property="og:image" content="/res/favicon.png" />
-        <meta property="og:type" content="website" />
+        <meta
+            property="og:image:url"
+            content={new URL(openGraph.image.url, siteUrl).href}
+        />
+        <meta property="og:image:width" content={openGraph.image.width} />
+        <meta property="og:image:height" content={openGraph.image.height} />
+        <meta property="og:type" content={openGraph.type} />
+        <meta
+            property="og:url"
+            content={new URL(Astro.url.pathname, siteUrl).href}
+        />
     </head>
 
     <body
