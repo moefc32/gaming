@@ -45,7 +45,7 @@ input[type="search"]::-webkit-search-cancel-button {
 
 @utility special-mask {
     /* Cutout dimensions and desired inner/outer corner radius */
-    --w: 192px;
+    --w: 148px;
     --h: 36px;
     --r: 16px;
 

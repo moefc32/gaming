@@ -9,10 +9,18 @@ const { pageTitle, articleMetadata } = Astro.props;
 const defaultFavicon = '/res/favicon.png';
 const imageDimensions = await imageSizeFromFile('./public' + defaultFavicon);
 
-const files = fs.readdirSync('./public/res');
-const preloadedBackgrounds = files
-    .filter(file => file.startsWith('lumine_') && file.endsWith('.webp'))
-    .map(file => `/res/${file}`);
+const files = fs.readdirSync('./public/res', { recursive: true });
+const preloadedAssets = [
+    ...files
+        .filter(file => file.startsWith('lumine/') && file.endsWith('.webp'))
+        .map(file => `/res/${file}`),
+    ...files
+        .filter(file => file.startsWith('icon/') && file.endsWith('.svg'))
+        .map(file => `/res/${file}`),
+    ...files
+        .filter(file => file.startsWith('ambience/') && file.endsWith('.webp'))
+        .map(file => `/res/${file}`),
+];
 
 const formattedTitle = pageTitle
     ? `${pageTitle} | ${metadata.siteName}`
@@ -59,8 +67,13 @@ const openGraph = {
         />
 
         {
-            preloadedBackgrounds.map(src => (
-                <link rel="preload" href={src} as="image" type="image/webp" />
+            preloadedAssets.map(src => (
+                <link
+                    rel="preload"
+                    href={src}
+                    as="image"
+                    type={src.endsWith('.svg') ? 'image/svg+xml' : 'image/webp'}
+                />
             ))
         }
     </head>

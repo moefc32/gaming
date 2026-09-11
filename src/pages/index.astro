@@ -8,28 +8,79 @@ import Footer from '../components/Footer.astro';
 
 <Layout>
     <main class="flex flex-1 flex-col gap-9 m-12 relative">
+        <div class="md:hidden -mx-9 -my-9">
+            <div
+                class="bg-sky-700 bg-cover bg-position-[center_40%] bg-no-repeat h-36 rounded-2xl overflow-hidden"
+                data-ambience="static"
+            >
+            </div>
+            <div class="flex flex-col items-center mx-12 -mt-28 mb-3">
+                <div class="avatar">
+                    <div
+                        class="bg-slate-800 w-40 border-slate-200 border-4 rounded-full"
+                    >
+                        <img
+                            src={owner.displayPicture}
+                            alt={owner.displayName}
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
         <div
             id="chara-container"
             class:list={[
-                'lg:special-mask w-full h-64 lg:w-[calc(100vw-624px)] lg:h-[calc(100dvh-96px)]',
-                'bg-sky-700 rounded-2xl lg:absolute right-0 top-0',
+                'hidden md:special-mask md:flex flex-1 justify-center items-end h-64',
+                'md:w-[calc(100vw-464px)] xl:w-[calc(100vw-624px)] md:h-[calc(100dvh-96px)]',
+                'bg-sky-700 rounded-2xl md:absolute right-0 top-0 overflow-hidden',
             ]}
         >
+            <div id="head-hitbox-container" class="hidden md:block relative">
+                <div
+                    id="head-hitbox"
+                    class:list={[
+                        'w-4/20 aspect-9/8 rounded-full cursor-grab active:cursor-grabbing',
+                        'touch-none z-20 top-[19.5%] left-[50%] -translate-x-1/2 absolute',
+                    ]}
+                    draggable="false"
+                >
+                </div>
+            </div>
+            {
+                Array.from({ length: 4 }).map((_, i) => (
+                    <div
+                        data-chara={i + 1}
+                        class:list={[
+                            'bg-bottom bg-contain bg-no-repeat scale-[1.05]',
+                            'transition-opacity duration-75 inset-0 absolute',
+                            i === 0 ? 'opacity-100' : 'opacity-0',
+                        ]}
+                        style={`background-image: url(res/lumine/${String(i + 1).padStart(2, '0')}.webp);`}
+                    />
+                ))
+            }
+            <div
+                class="bg-center bg-cover bg-no-repeat w-full h-full scale-[1.05] absolute inset-0 -z-10"
+                data-ambience="dynamic"
+            >
+            </div>
         </div>
         <div
-            class="flex flex-1 flex-col gap-2 lg:pt-6 lg:max-w-[480px] lg:absolute left-0 bottom-0"
+            class="flex flex-1 flex-col gap-2 md:pt-6 md:max-w-80 xl:max-w-120 md:absolute left-0 bottom-0"
         >
             <h1
-                class="text-5xl text-center lg:text-left text-slate-800 font-bold uppercase tracking-wide"
+                class="text-5xl text-center md:text-left text-slate-800 font-bold uppercase tracking-wide"
             >
                 {owner.displayName}
             </h1>
             <h2
-                class="text-2xl text-center lg:text-left text-sky-700 tracking-[.5em]"
+                class="text-2xl text-center md:text-left text-sky-700 tracking-[.5em]"
             >
                 {owner.kanaName}
             </h2>
-            <article class="flex flex-col gap-3 mt-4">
+            <article
+                class="flex flex-1 justify-center flex-col gap-3 mt-4 -me-3 pe-3 max-h-[calc(100vh-280px)] overflow-y-auto"
+            >
                 <p class="mb-3 text-lg text-slate-600 italic">
                     noun &mdash; personal term
                 </p>
@@ -47,3 +98,240 @@ import Footer from '../components/Footer.astro';
         <Footer />
     </main>
 </Layout>
+
+<script>
+    const container = document.querySelector('#chara-container');
+    const ambience = document.querySelectorAll('[data-ambience]');
+    const currentHour = new Date().getHours();
+
+    function preloadImages(directory, count) {
+        return Promise.all(
+            Array.from({ length: count }, (_, i) => {
+                const image = new Image();
+                image.src = `/res/${directory}/${String(i + 1).padStart(2, '0')}.webp`;
+
+                return image.decode().catch(() => {});
+            }),
+        );
+    }
+
+    const characterReady = preloadImages('lumine', 4);
+    const ambienceReady = preloadImages('ambience', 12);
+
+    ambience.forEach(item => {
+        const adjustedHour = (currentHour - 3 + 24) % 24;
+        const imageNumber = Math.floor(adjustedHour / 2) + 1;
+
+        if (item instanceof HTMLElement)
+            item.style.backgroundImage = `url(/res/ambience/${String(imageNumber).padStart(2, '0')}.webp)`;
+    });
+
+    if (container instanceof HTMLElement) {
+        const characters = Array.from(
+            container.querySelectorAll('[data-chara]'),
+        );
+
+        const [chara1, chara2, chara3, chara4] = characters;
+        const headHitbox = container.querySelector('#head-hitbox');
+        const parallaxElements = [...characters, headHitbox];
+
+        let activeCharacter = chara1;
+        let isInteractingWithHead = false;
+        let pointerX = 0;
+        let pointerY = 0;
+        let parallaxFrame = 0;
+
+        function showCharacter(character) {
+            if (!(character instanceof HTMLElement)) return;
+            if (activeCharacter === character) return;
+
+            characterReady.then(() => {
+                const previousCharacter = activeCharacter;
+                activeCharacter = character;
+
+                if (previousCharacter instanceof HTMLElement)
+                    previousCharacter.style.transitionDelay = '25ms';
+
+                character.style.transitionDelay = '0ms';
+
+                characters.forEach(chara => {
+                    if (!(chara instanceof HTMLElement)) return;
+
+                    const isActive = chara === character;
+
+                    chara.classList.toggle('opacity-100', isActive);
+                    chara.classList.toggle('opacity-0', !isActive);
+
+                    if (chara.dataset.chara === '4') {
+                        chara3?.classList.toggle('opacity-100', isActive);
+                        chara.classList.toggle('cursor-grabbing', isActive);
+                    }
+                });
+
+                setTimeout(() => {
+                    if (previousCharacter instanceof HTMLElement)
+                        previousCharacter.style.transitionDelay = '';
+                }, 125);
+            });
+        }
+
+        function evaluatePointerPosition(clientX, clientY) {
+            const rect = container.getBoundingClientRect();
+
+            const distanceX = clientX - rect.left - rect.width * 0.5;
+            const distanceY = clientY - rect.top - rect.height * 0.575;
+
+            const chara2Distance = Math.hypot(
+                distanceX / (rect.width * 0.3),
+                distanceY / (rect.height * 0.3),
+            );
+
+            const chara3Distance = Math.hypot(
+                distanceX / (rect.width * 0.1),
+                distanceY / (rect.height * 0.375),
+            );
+
+            if (chara3Distance <= 1) {
+                showCharacter(chara3);
+            } else if (chara2Distance <= 1) {
+                showCharacter(chara2);
+            } else {
+                showCharacter(chara1);
+            }
+        }
+
+        if (headHitbox instanceof HTMLElement) {
+            headHitbox.addEventListener('dragstart', evt =>
+                evt.preventDefault(),
+            );
+
+            headHitbox.addEventListener('mousedown', evt => {
+                if (evt.button !== 0) return;
+
+                isInteractingWithHead = true;
+                showCharacter(chara4);
+            });
+        }
+
+        window.addEventListener('mouseup', evt => {
+            if (!isInteractingWithHead) return;
+
+            isInteractingWithHead = false;
+
+            const target = document.elementFromPoint(evt.clientX, evt.clientY);
+
+            if (target?.closest('[data-social], [data-video]')) {
+                showCharacter(chara2);
+            } else if (container.contains(target)) {
+                evaluatePointerPosition(evt.clientX, evt.clientY);
+            } else {
+                showCharacter(chara1);
+            }
+        });
+
+        container.addEventListener('mousemove', evt => {
+            if (isInteractingWithHead) return;
+            evaluatePointerPosition(evt.clientX, evt.clientY);
+        });
+
+        container.addEventListener('mouseleave', () => {
+            if (isInteractingWithHead) return;
+            showCharacter(chara1);
+        });
+
+        document.addEventListener('pointerover', evt => {
+            if (isInteractingWithHead) return;
+
+            if (evt.target instanceof Element) {
+                const media = evt.target.closest('[data-social], [data-video]');
+                if (media) showCharacter(chara2);
+            }
+        });
+
+        document.addEventListener('pointerout', evt => {
+            if (isInteractingWithHead) return;
+
+            if (evt.target instanceof Element) {
+                const media = evt.target.closest('[data-social], [data-video]');
+
+                if (media && !media.contains(evt.relatedTarget))
+                    showCharacter(chara1);
+            }
+        });
+
+        window.addEventListener('mousemove', evt => {
+            pointerX = evt.clientX;
+            pointerY = evt.clientY;
+
+            if (parallaxFrame) return;
+
+            parallaxFrame = requestAnimationFrame(() => {
+                const x = pointerX / window.innerWidth;
+                const y = pointerY / window.innerHeight;
+
+                const moveX = -(x - 0.5) * 35;
+                const moveY = -(y - 0.5) * 20;
+                const moveBg = (x - 0.5) * 10;
+
+                parallaxElements.forEach(chara => {
+                    if (chara instanceof HTMLElement)
+                        chara.style.transform = `scale(1) translate(${moveX}px, ${moveY}px)`;
+                });
+
+                ambience.forEach(item => {
+                    if (
+                        item instanceof HTMLElement &&
+                        item.dataset.ambience !== 'static'
+                    )
+                        item.style.transform = `scale(1) translateX(${moveBg}px)`;
+                });
+
+                parallaxFrame = 0;
+            });
+        });
+
+        window.addEventListener('mouseleave', () => {
+            parallaxElements.forEach(chara => {
+                if (chara instanceof HTMLElement)
+                    chara.style.transform = 'scale(1)';
+            });
+        });
+    }
+
+    function fitRatio() {
+        const container = document.getElementById('chara-container');
+        const box = document.getElementById('head-hitbox-container');
+
+        if (!container || !box) return;
+
+        const isDesktop = window.innerWidth >= 1024;
+
+        let containerWidth =
+            container.offsetWidth ||
+            (isDesktop ? window.innerWidth - 624 : window.innerWidth);
+        let containerHeight =
+            container.offsetHeight ||
+            (isDesktop ? window.innerHeight - 96 : 256);
+
+        if (!containerWidth || !containerHeight) return;
+
+        const targetRatio = 4 / 5;
+        const currentRatio = containerWidth / containerHeight;
+
+        let finalWidth, finalHeight;
+
+        if (currentRatio > targetRatio) {
+            finalHeight = containerHeight;
+            finalWidth = containerHeight * targetRatio;
+        } else {
+            finalWidth = containerWidth;
+            finalHeight = containerWidth / targetRatio;
+        }
+
+        box.style.width = Math.floor(finalWidth) + 'px';
+        box.style.height = Math.floor(finalHeight) + 'px';
+    }
+
+    window.addEventListener('resize', fitRatio);
+    fitRatio();
+</script>
