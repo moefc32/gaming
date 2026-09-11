@@ -54,7 +54,7 @@ import Footer from '../components/Footer.astro';
                         data-chara={i + 1}
                         class:list={[
                             'bg-bottom bg-contain bg-no-repeat scale-[1.05]',
-                            'transition-opacity duration-75 inset-0 absolute',
+                            'transition-opacity duration-100 inset-0 absolute',
                             i === 0 ? 'opacity-100' : 'opacity-0',
                         ]}
                         style={`background-image: url(res/lumine/${String(i + 1).padStart(2, '0')}.webp);`}
@@ -147,30 +147,68 @@ import Footer from '../components/Footer.astro';
     preloadImages('ambience', 12);
 
     const adjustedHour = (currentHour - 3 + 24) % 24;
-    const imageNumber = Math.floor(adjustedHour / 2) + 1;
-    const currentAmbienceUrl = `/res/ambience/${String(imageNumber).padStart(2, '0')}.webp`;
+    let imageNumber = Math.floor(adjustedHour / 2) + 1;
 
-    const img = new Image();
-    img.src = currentAmbienceUrl;
+    function applyAmbience(targetIndex, transition = 350) {
+        const currentAmbienceUrl = `/res/ambience/${String(targetIndex).padStart(2, '0')}.webp`;
+        const img = new Image();
+        img.src = currentAmbienceUrl;
 
-    img.decode()
-        .then(() => {
-            ambience.forEach(item => {
-                if (item instanceof HTMLElement) {
-                    item.style.backgroundImage = `url(${currentAmbienceUrl})`;
-                    item.animate([{ opacity: 0 }, { opacity: 1 }], {
-                        duration: 350,
-                        easing: 'ease-in-out',
-                    });
-                }
+        img.decode()
+            .then(() => {
+                ambience.forEach(item => {
+                    if (!(item instanceof HTMLElement)) return;
+
+                    if (getComputedStyle(item).position === 'static')
+                        item.style.position = 'relative';
+
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = `
+                        position: absolute;
+                        inset: 0;
+                        pointer-events: none;
+                        background-image: url(${currentAmbienceUrl});
+                        background-size: inherit;
+                        background-position: inherit;
+                        background-repeat: inherit;
+                        background-attachment: inherit;
+                        border-radius: inherit;
+                    `;
+
+                    item.appendChild(overlay);
+
+                    const animation = overlay.animate(
+                        [{ opacity: 0 }, { opacity: 1 }],
+                        {
+                            duration: transition,
+                            easing: 'ease-in-out',
+                            fill: 'forwards',
+                        },
+                    );
+
+                    animation.onfinish = () => {
+                        item.style.backgroundImage = `url(${currentAmbienceUrl})`;
+                        overlay.remove();
+                    };
+                });
+            })
+            .catch(() => {
+                ambience.forEach(item => {
+                    if (item instanceof HTMLElement)
+                        item.style.backgroundImage = `url(${currentAmbienceUrl})`;
+                });
             });
-        })
-        .catch(() => {
-            ambience.forEach(item => {
-                if (item instanceof HTMLElement)
-                    item.style.backgroundImage = `url(${currentAmbienceUrl})`;
-            });
-        });
+    }
+
+    applyAmbience(imageNumber);
+
+    setInterval(
+        () => {
+            imageNumber = (imageNumber % 12) + 1;
+            applyAmbience(imageNumber, 10 * 1000);
+        },
+        5 * 60 * 1000,
+    );
 
     if (container instanceof HTMLElement) {
         const characters = Array.from(
