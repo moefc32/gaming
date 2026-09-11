@@ -1,8 +1,7 @@
 <script>
-    import { onMount, tick } from 'svelte';
+    import { onMount } from 'svelte';
     import { Toaster, toast } from 'svelte-sonner';
     import ky from 'ky';
-    import datePrettier from '../lib/datePrettier';
 
     let dataLoading = true;
     let platform = [];
@@ -15,47 +14,48 @@
     let dragStartScrollLeft = 0;
     let suppressClick = false;
 
-    function handlePointerDown(event) {
-        if (event.pointerType === 'mouse' && event.button !== 0) return;
+    function handlePointerDown(evt) {
+        if (evt.pointerType === 'mouse' && evt.button !== 0) return;
 
         isPointerDown = true;
-        dragStartX = event.clientX;
+        dragStartX = evt.clientX;
         dragStartScrollLeft = videoContainer.scrollLeft;
         isDragging = false;
         suppressClick = false;
     }
 
-    function handlePointerMove(event) {
+    function handlePointerMove(evt) {
         if (!isPointerDown) return;
 
-        const distance = event.clientX - dragStartX;
+        const distance = evt.clientX - dragStartX;
 
         if (!isDragging) {
             if (Math.abs(distance) < 8) return;
 
             isDragging = true;
             suppressClick = true;
-            videoContainer.setPointerCapture(event.pointerId);
+            videoContainer.setPointerCapture(evt.pointerId);
         }
 
         videoContainer.scrollLeft = dragStartScrollLeft - distance;
     }
 
-    function handlePointerUp(event) {
+    function handlePointerUp(evt) {
         isPointerDown = false;
 
-        if (videoContainer.hasPointerCapture(event.pointerId)) {
-            videoContainer.releasePointerCapture(event.pointerId);
+        if (videoContainer.hasPointerCapture(evt.pointerId)) {
+            videoContainer.releasePointerCapture(evt.pointerId);
         }
 
         isDragging = false;
     }
 
-    function handleClick(event) {
-        if (!suppressClick) return;
-
-        event.preventDefault();
-        suppressClick = false;
+    function playVideo(url) {
+        window.dispatchEvent(
+            new CustomEvent('play-video', {
+                detail: url,
+            }),
+        );
     }
 
     onMount(async () => {
@@ -71,17 +71,6 @@
             console.error(e);
             toast.error('Cannot fetch data, please try again later!');
         }
-
-        await tick();
-
-        videoContainer.querySelectorAll('a').forEach(item => {
-            item.addEventListener('click', evt => {
-                if (evt.ctrlKey || evt.metaKey) return;
-
-                // evt.preventDefault();
-                console.log({ video: item.href });
-            });
-        });
     });
 </script>
 
@@ -102,7 +91,7 @@
                         'tooltip md:tooltip-bottom md:tooltip-end rounded-2xl',
                         'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
                         'inline-block p-2 bg-slate-400/85 border-2 border-slate-400/85',
-                        'hover:bg-sky-800 hover:border-black/20 transition shadow-lg',
+                        'hover:bg-sky-700 hover:border-black/20 transition shadow-lg',
                     ]}
                     aria-label={item.name}
                     data-tip={item.name}
@@ -124,9 +113,7 @@
         {/if}
     </div>
 
-    <div
-        class="hidden lg:block me-[calc(100vw-626px)] xl:me-[calc(100vw-786px)] z-50 absolute right-0 bottom-45"
-    >
+    <div class="hidden lg:block z-50 absolute left-98 xl:left-138 bottom-36">
         <div class="badge badge-warning px-4 py-3 font-bold shadow-lg">
             Latest Uploads
         </div>
@@ -134,8 +121,8 @@
     <div
         bind:this={videoContainer}
         class={[
-            'hidden lg:flex gap-3 me-44 mb-4 px-2 py-2 overflow-x-auto rounded-lg select-none',
-            'w-[calc(100vw-660px)] xl:w-[calc(100vw-820px)] h-40 absolute right-0 bottom-0 rounded-lg select-none',
+            'hidden lg:flex gap-3 me-44 mb-4 py-2 overflow-x-auto rounded-lg select-none',
+            'w-[calc(100vw-660px)] xl:w-[calc(100vw-820px)] h-32 absolute left-98 xl:left-138 bottom-0 rounded-lg select-none',
         ]}
         style="touch-action: pan-y;"
         onpointerdown={handlePointerDown}
@@ -158,8 +145,16 @@
                     title={item.title}
                     aria-label={item.title}
                     draggable="false"
-                    ondragstart={event => event.preventDefault()}
-                    onclick={handleClick}
+                    ondragstart={evt => evt.preventDefault()}
+                    onclick={evt => {
+                        if (suppressClick) {
+                            handleClick(evt);
+                            return;
+                        }
+
+                        evt.preventDefault();
+                        playVideo(item.url);
+                    }}
                 >
                     <span
                         class={[
