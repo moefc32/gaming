@@ -1,30 +1,34 @@
 ---
 import '../styles/global.css';
+import fs from 'node:fs';
 import { imageSizeFromFile } from 'image-size/fromFile';
-import { owner } from '../lib/config';
+import { metadata } from '../lib/config';
 
-const { pageTitle } = Astro.props;
+const { pageTitle, articleMetadata } = Astro.props;
 
 const defaultFavicon = '/res/favicon.png';
 const imageDimensions = await imageSizeFromFile('./public' + defaultFavicon);
 
-const siteTitle = `${owner.displayName}'s Website`;
-const formattedTitle = pageTitle ? `${pageTitle} | ${siteTitle}` : siteTitle;
-const siteDescription = '';
+const files = fs.readdirSync('./public/res');
+const preloadedBackgrounds = files
+    .filter(file => file.startsWith('lumine_') && file.endsWith('.webp'))
+    .map(file => `/res/${file}`);
+
+const formattedTitle = pageTitle
+    ? `${pageTitle} | ${metadata.siteName}`
+    : metadata.siteName;
 const siteUrl = import.meta.env.DEV
     ? Astro.url.origin
     : import.meta.env.PUBLIC_SITE_URL.replace(/\/+$/, '');
 
 const openGraph = {
-    siteName: siteTitle,
-    description:
-        'Welcome to my website! I may post about games, animanga, shitposts, and waifus too, so nice to meet you!',
     image: {
         url: defaultFavicon,
         width: imageDimensions?.width,
         height: imageDimensions?.height,
     },
-    type: 'website',
+    ...metadata,
+    ...articleMetadata,
 };
 ---
 
@@ -36,7 +40,7 @@ const openGraph = {
         <link rel="icon" type="image/png" href={defaultFavicon} />
 
         <title>{formattedTitle}</title>
-        <meta name="description" content={siteDescription} />
+        <meta name="description" content={metadata.description} />
         <meta name="generator" content={Astro.generator} />
 
         <meta property="og:title" content={formattedTitle} />
@@ -53,6 +57,12 @@ const openGraph = {
             property="og:url"
             content={new URL(Astro.url.pathname, siteUrl).href}
         />
+
+        {
+            preloadedBackgrounds.map(src => (
+                <link rel="preload" href={src} as="image" type="image/webp" />
+            ))
+        }
     </head>
 
     <body
