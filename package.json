@@ -12,7 +12,7 @@
     "devDependencies": {
         "@tailwindcss/vite": "^4.3.3",
         "@vite-pwa/astro": "^1.2.0",
-        "daisyui": "^5.7.36",
+        "daisyui": "^5.7.38",
         "gh-pages": "^6.3.0",
         "tailwindcss": "^4.3.3"
     },
@@ -20,7 +20,7 @@
         "@astrojs/svelte": "^8.1.2",
         "@fontsource-variable/red-hat-display": "^5.3.0",
         "astro": "^6.4.8",
-        "image-size": "^2.0.2",
+        "image-size": "^2.0.4",
         "ky": "^1.14.3",
         "plyr": "^3.8.4",
         "svelte": "^5.57.0",
