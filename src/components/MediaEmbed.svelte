@@ -74,6 +74,7 @@
     });
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <aside>
     <div
         class={[
@@ -114,7 +115,13 @@
     </div>
 
     <div class="hidden lg:block z-50 absolute left-98 xl:left-138 bottom-36">
-        <div class="badge badge-warning px-4 py-3 font-bold shadow-lg">
+        <div
+            class={[
+                'badge badge-warning px-4 py-3 font-bold shadow-lg',
+                'transition-all duration-250',
+                youtube.length ? 'opacity-100' : 'opacity-0',
+            ]}
+        >
             Latest Uploads
         </div>
     </div>

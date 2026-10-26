@@ -22,7 +22,8 @@
         "astro": "^7.4.2",
         "image-size": "^2.0.4",
         "ky": "^1.14.3",
-        "plyr": "^3.8.5",
+        "@videojs/html": "^10.2.0",
+        "@videojs/youtube-video": "^10.2.0",
         "svelte": "^5.57.2",
         "svelte-sonner": "^1.2.1"
     }
